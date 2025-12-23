@@ -1,0 +1,10 @@
+{
+  "name": "Copy of CareSync UK",
+  "short_name": "CareSync",
+  "description": "Smart, CQC-compliant scheduling and management system for UK care providers.",
+  "version": "1.0.0",
+  "author": "CareSync UK Services",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
