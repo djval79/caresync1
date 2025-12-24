@@ -1,38 +1,48 @@
 
 import React, { useState } from 'react';
 import { ShieldCheck, User, Lock, Loader2, Home, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { supabase } from '../services/supabaseClient';
 
 interface LoginProps {
   onLogin: (role: 'SUPER_ADMIN' | 'MANAGER' | 'STAFF') => void;
+  onSignUpClick: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC<LoginProps> = ({ onLogin, onSignUpClick }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simulated login logic
-    setTimeout(() => {
-      // Super Admin Check
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (authError) throw authError;
+
+      if (data.session) {
+        // Check Profile to get role (simulated as we might not have set context yet)
+        // For now, default to MANAGER if successful, or use metadata
+        const role = data.session.user.user_metadata.role || 'MANAGER';
+        onLogin(role);
+      }
+    } catch (err: any) {
+      // Fallback for demo credentials (if supabase fails or for specific hardcoded demo)
       if (email.toLowerCase() === 'mrsonirie@gmail.com' && password === 'phoneBobby1?') {
         onLogin('SUPER_ADMIN');
-      } 
-      // Existing Demo Logic
-      else if (email.includes('manager')) {
-        onLogin('MANAGER');
-      } else if (email.includes('staff')) {
-        onLogin('STAFF');
       } else {
-        setError('Invalid credentials. Access Denied.');
-        setIsLoading(false);
+        setError(err.message || 'Invalid credentials');
       }
-    }, 1200);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -109,16 +119,24 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
         </div>
 
-        <div className="mt-6 text-center space-y-4">
-          <p className="text-slate-400 text-xs font-medium">© 2024 CareSync UK Services Ltd. All Rights Reserved.</p>
-          <div className="flex justify-center space-x-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            <a href="#" className="hover:text-indigo-600 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Security Audit</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors">Support</a>
-          </div>
+      </div>
+
+      <div className="mt-6 text-center space-y-4">
+        <p className="text-slate-500 text-sm font-medium">
+          New to CareSync?{' '}
+          <button onClick={onSignUpClick} className="text-indigo-600 font-bold hover:underline">
+            Create an account
+          </button>
+        </p>
+        <p className="text-slate-400 text-xs font-medium">© 2024 CareSync UK Services Ltd. All Rights Reserved.</p>
+        <div className="flex justify-center space-x-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          <a href="#" className="hover:text-indigo-600 transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-indigo-600 transition-colors">Security Audit</a>
+          <a href="#" className="hover:text-indigo-600 transition-colors">Support</a>
         </div>
       </div>
     </div>
+    </div >
   );
 };
 

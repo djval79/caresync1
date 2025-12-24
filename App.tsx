@@ -15,6 +15,7 @@ import Login from './components/Login';
 import AddStaffModal from './components/AddStaffModal';
 import AddShiftModal from './components/AddShiftModal';
 import AddClientModal from './components/AddResidentModal';
+import SignUp from './components/SignUp';
 import { INITIAL_STAFF, MOCK_SHIFTS, INITIAL_CLIENTS } from './constants';
 import { Staff, Shift, StaffRole, Client, CareType, MedicationLog, MedicationStatus } from './types';
 
@@ -22,7 +23,8 @@ type UserRole = 'SUPER_ADMIN' | 'MANAGER' | 'STAFF';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<UserRole>('MANAGER');
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [authView, setAuthView] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'rota' | 'staff' | 'residents' | 'assistant' | 'reports' | 'emar' | 'family' | 'settings' | 'billing'>('dashboard');
 
   // Local storage keys
@@ -344,6 +346,24 @@ const App: React.FC = () => {
         <p className="text-slate-500 font-medium animate-pulse">Initialising CareSync Environment...</p>
       </div>
     );
+  }
+
+  if (!userRole) {
+    if (authView === 'SIGNUP') {
+      return (
+        <SignUp
+          onBackToLogin={() => setAuthView('LOGIN')}
+          onSignUpSuccess={(email) => {
+            alert(`Account created for ${email}! Please log in.`);
+            setAuthView('LOGIN'); // Redirect to login
+          }}
+        />
+      );
+    }
+    return <Login
+      onLogin={(role) => { setUserRole(role); setIsAuthenticated(true); }}
+      onSignUpClick={() => setAuthView('SIGNUP')}
+    />;
   }
 
   return (
