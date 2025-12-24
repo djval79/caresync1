@@ -27,6 +27,35 @@ export interface Staff {
   currentHours: number;
   rating: number;
   complianceStatus: 'Green' | 'Amber' | 'Red';
+  hourlyRate: number;
+}
+
+export enum MedicationStatus {
+  SCHEDULED = 'Scheduled',
+  TAKEN = 'Taken',
+  REFUSED = 'Refused',
+  MISSED = 'Missed',
+  PRN = 'PRN (As Needed)'
+}
+
+export interface Medication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  times: string[];
+  instructions?: string;
+  stockLevel: number;
+}
+
+export interface MedicationLog {
+  id: string;
+  medicationId: string;
+  clientId: string;
+  staffId: string;
+  timestamp: string;
+  status: MedicationStatus;
+  notes?: string;
 }
 
 export interface Client {
@@ -37,6 +66,16 @@ export interface Client {
   address?: string;
   postcode?: string;
   careLevel: 'Low' | 'Medium' | 'High';
+  hourlyRate: number;
+  medications?: Medication[];
+  visitRequirements?: VisitRequirement[];
+}
+
+export interface VisitRequirement {
+  type: ShiftType;
+  preferredTime: string; // "08:00"
+  duration: number; // minutes
+  frequency: 'DAILY' | 'weekly'; // simplified for now
 }
 
 export interface Shift {

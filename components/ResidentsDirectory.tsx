@@ -6,17 +6,18 @@ import { Client, CareType } from '../types';
 interface ClientDirectoryProps {
   residents: Client[];
   onAddResidentClick: () => void;
+  onViewResident: (client: Client) => void;
 }
 
-const ClientDirectory: React.FC<ClientDirectoryProps> = ({ residents, onAddResidentClick }) => {
+const ClientDirectory: React.FC<ClientDirectoryProps> = ({ residents, onAddResidentClick, onViewResident }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [careFilter, setCareFilter] = useState<string>('All');
   const [typeFilter, setTypeFilter] = useState<string>('All');
 
   const filteredResidents = residents.filter(r => {
-    const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (r.address?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                          (r.roomNumber?.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.address?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (r.roomNumber?.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCare = careFilter === 'All' || r.careLevel === careFilter;
     const matchesType = typeFilter === 'All' || r.careType === typeFilter;
     return matchesSearch && matchesCare && matchesType;
@@ -67,7 +68,7 @@ const ClientDirectory: React.FC<ClientDirectoryProps> = ({ residents, onAddResid
             </select>
           </div>
         </div>
-        <button 
+        <button
           onClick={onAddResidentClick}
           className="flex items-center justify-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20"
         >
@@ -87,12 +88,12 @@ const ClientDirectory: React.FC<ClientDirectoryProps> = ({ residents, onAddResid
                   className="w-16 h-16 rounded-xl object-cover border-2 border-slate-50 shadow-sm"
                 />
                 <div className={`px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider ${resident.careType === CareType.RESIDENTIAL ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-purple-50 text-purple-600 border border-purple-100'}`}>
-                   {resident.careType}
+                  {resident.careType}
                 </div>
               </div>
-              
+
               <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{resident.name}</h3>
-              
+
               <div className="mt-3 flex items-start space-x-2 text-slate-500">
                 {resident.careType === CareType.RESIDENTIAL ? (
                   <>
@@ -102,7 +103,7 @@ const ClientDirectory: React.FC<ClientDirectoryProps> = ({ residents, onAddResid
                 ) : (
                   <>
                     <MapPin size={14} className="shrink-0 mt-1" />
-                    <span className="text-sm font-medium leading-tight">{resident.address}<br/><span className="text-[10px] text-slate-400">{resident.postcode}</span></span>
+                    <span className="text-sm font-medium leading-tight">{resident.address}<br /><span className="text-[10px] text-slate-400">{resident.postcode}</span></span>
                   </>
                 )}
               </div>
@@ -116,22 +117,27 @@ const ClientDirectory: React.FC<ClientDirectoryProps> = ({ residents, onAddResid
                 </div>
               </div>
             </div>
-            <button className="w-full py-3 bg-slate-50 border-t border-slate-100 text-xs font-bold text-slate-600 uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-all">
+            <button
+              onClick={() => onViewResident(resident)}
+              className="w-full py-3 bg-slate-50 border-t border-slate-100 text-xs font-bold text-slate-600 uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+            >
               View Profile
             </button>
           </div>
         ))}
       </div>
 
-      {filteredResidents.length === 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search className="text-slate-300" size={32} />
+      {
+        filteredResidents.length === 0 && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="text-slate-300" size={32} />
+            </div>
+            <p className="text-slate-500 font-medium">No clients found matching your search criteria.</p>
           </div>
-          <p className="text-slate-500 font-medium">No clients found matching your search criteria.</p>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 

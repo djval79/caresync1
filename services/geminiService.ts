@@ -1,8 +1,9 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Staff, Shift } from "../types";
 
-// Fix: Initializing GoogleGenAI as per guidelines (direct process.env.API_KEY)
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Fix: Initializing GoogleGenAI using VITE_ prefixed env var for client-side access
+console.log("geminiService keys:", import.meta.env.VITE_GEMINI_API_KEY ? "Found" : "Missing");
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || "dummy_key" });
 
 export const getRotaInsights = async (staff: Staff[], shifts: Shift[]) => {
   const prompt = `

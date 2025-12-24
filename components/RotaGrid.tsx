@@ -11,12 +11,13 @@ interface RotaGridProps {
   isAdmin: boolean;
   onAssignShift: (shiftId: string, staffId: string) => void;
   onOpenAddShift: () => void;
+  onEditShift?: (shift: Shift) => void;
 }
 
-const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, onAssignShift, onOpenAddShift }) => {
+const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, onAssignShift, onOpenAddShift, onEditShift }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null);
-  
+
   const startDate = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(startDate, i));
 
@@ -51,7 +52,7 @@ const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, on
           </div>
         </div>
         {isAdmin && (
-          <button 
+          <button
             onClick={onOpenAddShift}
             className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
           >
@@ -83,20 +84,19 @@ const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, on
                 </td>
                 {weekDays.map((day, dIdx) => {
                   const dayShifts = getShiftsForDayAndSlot(day, slot);
-                  
+
                   return (
                     <td key={dIdx} className="p-2 border-b group relative align-top min-h-[140px]">
                       <div className="space-y-3">
                         {dayShifts.map(shift => {
                           const assignedStaff = staff.find(s => s.id === shift.staffId);
                           const client = clients.find(c => c.id === shift.clientId);
-                          
+
                           return (
-                            <div key={shift.id} className={`p-3 rounded-xl border transition-all ${
-                              shift.status === 'Confirmed' 
-                                ? 'bg-white border-slate-200 hover:border-indigo-300 hover:shadow-md' 
-                                : 'bg-orange-50 border-orange-200 border-dashed shadow-sm'
-                            }`}>
+                            <div key={shift.id} className={`p-3 rounded-xl border transition-all ${shift.status === 'Confirmed'
+                              ? 'bg-white border-slate-200 hover:border-indigo-300 hover:shadow-md'
+                              : 'bg-orange-50 border-orange-200 border-dashed shadow-sm'
+                              }`}>
                               <div className="flex justify-between items-start mb-2">
                                 <div className="flex items-center space-x-1.5 overflow-hidden">
                                   <div className={`p-1 rounded-md ${client?.careType === CareType.RESIDENTIAL ? 'bg-blue-50 text-blue-500' : 'bg-purple-50 text-purple-500'}`}>
@@ -108,7 +108,7 @@ const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, on
                                   {shift.duration}m
                                 </span>
                               </div>
-                              
+
                               <div className="flex items-center justify-between text-[10px] text-slate-500 mb-3 font-semibold">
                                 <div className="flex items-center space-x-1">
                                   <Clock size={10} />
@@ -122,14 +122,14 @@ const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, on
                               {assignedStaff ? (
                                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50">
                                   <div className="flex items-center space-x-1.5 overflow-hidden">
-                                    <img 
-                                      src={`https://picsum.photos/seed/${assignedStaff.id}/32`} 
-                                      className="w-5 h-5 rounded-full" 
-                                      alt={assignedStaff.name} 
+                                    <img
+                                      src={`https://picsum.photos/seed/${assignedStaff.id}/32`}
+                                      className="w-5 h-5 rounded-full"
+                                      alt={assignedStaff.name}
                                     />
                                     <p className="text-[10px] font-bold text-slate-600 truncate">{assignedStaff.name.split(' ')[0]}</p>
                                   </div>
-                                  <button 
+                                  <button
                                     onClick={() => setSelectedShiftId(shift.id)}
                                     className="p-1 hover:bg-slate-50 rounded-full text-slate-300 hover:text-indigo-600 transition-colors"
                                   >
@@ -140,7 +140,7 @@ const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, on
                                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
                                   <p className="text-[9px] font-black text-orange-600 tracking-tighter uppercase">Needs Staff</p>
                                   {isAdmin && (
-                                    <button 
+                                    <button
                                       onClick={() => onAssignShift(shift.id, '3')}
                                       className="p-1 bg-orange-100 text-orange-600 rounded-md hover:bg-orange-600 hover:text-white transition-all shadow-sm shadow-orange-200"
                                     >
@@ -153,7 +153,7 @@ const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, on
                           );
                         })}
                         {isAdmin && dayShifts.length === 0 && (
-                          <button 
+                          <button
                             onClick={onOpenAddShift}
                             className="w-full py-6 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 bg-slate-50/80 border border-slate-200 border-dashed rounded-xl transition-all hover:bg-indigo-50 hover:border-indigo-300"
                           >
@@ -177,19 +177,19 @@ const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, on
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <h3 className="text-lg font-bold text-slate-800">Visit Detail View</h3>
-              <button 
+              <button
                 onClick={() => setSelectedShiftId(null)}
                 className="p-2 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-600 transition-all"
               >
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-6 space-y-6">
               <div className="flex items-center space-x-4">
-                <img 
-                  src={`https://picsum.photos/seed/${selectedClient.id}/128`} 
-                  alt={selectedClient.name} 
+                <img
+                  src={`https://picsum.photos/seed/${selectedClient.id}/128`}
+                  alt={selectedClient.name}
                   className="w-20 h-20 rounded-2xl object-cover border-4 border-slate-50 shadow-md"
                 />
                 <div>
@@ -257,14 +257,22 @@ const RotaGrid: React.FC<RotaGridProps> = ({ shifts, staff, clients, isAdmin, on
               )}
 
               <div className="pt-4 flex space-x-3">
-                <button 
+                <button
                   onClick={() => setSelectedShiftId(null)}
                   className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all text-sm"
                 >
                   Close
                 </button>
                 {isAdmin && (
-                  <button className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-xl shadow-indigo-600/30 transition-all text-sm">
+                  <button
+                    onClick={() => {
+                      if (onEditShift && selectedShift) {
+                        onEditShift(selectedShift);
+                        setSelectedShiftId(null);
+                      }
+                    }}
+                    className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-xl shadow-indigo-600/30 transition-all text-sm"
+                  >
                     Update Visit
                   </button>
                 )}
